@@ -150,6 +150,47 @@ def heatmap_progress_by_class_proba(df, title="Progres mediu (Bac - Evaluare) pe
     plt.tight_layout()
     return fig
 
+
+def plot_line_by_class(df, title="Evoluția mediilor pe etape – pe clase"):
+    temp = df.copy()
+    temp["Evaluare"] = as_number(temp["Evaluare"])
+    temp["Simulare"] = as_number(temp["Simulare"])
+    temp["Bacalaureat"] = as_number(temp["Bacalaureat"])
+    
+    grouped = temp.groupby("Clasa")[["Evaluare", "Simulare", "Bacalaureat"]].mean()
+
+    fig, ax = plt.subplots()
+    x = ["Evaluare", "Simulare", "Bacalaureat"]
+    for clasa, row in grouped.iterrows():
+        y = row.values
+        ax.plot(x, y, marker="o", label=clasa)
+    ax.set_title(title)
+    ax.set_ylabel("Medie")
+    ax.set_xlabel("Etapă")
+    ax.legend(title="Clasa", bbox_to_anchor=(1.05, 1), loc="upper left")
+    plt.tight_layout()
+    return fig
+
+def plot_line_by_proba(df, title="Evoluția mediilor pe etape – pe probe"):
+    temp = df.copy()
+    temp["Evaluare"] = as_number(temp["Evaluare"])
+    temp["Simulare"] = as_number(temp["Simulare"])
+    temp["Bacalaureat"] = as_number(temp["Bacalaureat"])
+    
+    grouped = temp.groupby("Proba")[["Evaluare", "Simulare", "Bacalaureat"]].mean()
+
+    fig, ax = plt.subplots()
+    x = ["Evaluare", "Simulare", "Bacalaureat"]
+    for proba, row in grouped.iterrows():
+        y = row.values
+        ax.plot(x, y, marker="o", label=proba)
+    ax.set_title(title)
+    ax.set_ylabel("Medie")
+    ax.set_xlabel("Etapă")
+    ax.legend(title="Proba", bbox_to_anchor=(1.05, 1), loc="upper left")
+    plt.tight_layout()
+    return fig
+
 # ------------------------
 # UI
 # ------------------------
@@ -227,6 +268,17 @@ st.pyplot(fig_prog_class, clear_figure=True)
 st.subheader("📚 Progres mediu pe probă (în selecție)")
 fig_prog_proba = plot_progress_bars(df_sel, by="Proba", agg_on="Bacalaureat vs Evaluare", title="Progres mediu (Bac - Evaluare) pe probă")
 st.pyplot(fig_prog_proba, clear_figure=True)
+
+# Evoluție pe clase
+st.subheader("📊 Evoluția mediilor pe etape – pe clase")
+fig_line_class = plot_line_by_class(df_sel)
+st.pyplot(fig_line_class, clear_figure=True)
+
+# Evoluție pe probe
+st.subheader("📊 Evoluția mediilor pe etape – pe probe")
+fig_line_proba = plot_line_by_proba(df_sel)
+st.pyplot(fig_line_proba, clear_figure=True)
+
 
 # Heatmap Class x Proba
 st.subheader("🗺️ Hartă progres (Bac - Evaluare) pe Clasă x Probă (în selecție)")
